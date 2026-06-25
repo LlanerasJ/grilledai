@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { InterviewSetup, InterviewType } from "@/lib/types";
+import { TEMPLATES, type RoleTemplate } from "@/lib/templates";
 
 const TYPES: { value: InterviewType; label: string }[] = [
   { value: "behavioral", label: "Behavioral" },
@@ -17,6 +18,15 @@ export default function SetupPage() {
   const [type, setType] = useState<InterviewType>("behavioral");
   const [jd, setJd] = useState("");
   const [resume, setResume] = useState("");
+  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
+
+  function applyTemplate(t: RoleTemplate) {
+    setRole(t.role);
+    setType(t.type);
+    setJd(t.jd);
+    setResume(t.resume);
+    setActiveTemplate(t.id);
+  }
 
   function start() {
     const setup: InterviewSetup = { role, type, jd, resume };
@@ -32,6 +42,29 @@ export default function SetupPage() {
       <p className="mt-2 text-zinc-500">
         Practice with an AI interviewer, then get honest, specific feedback.
       </p>
+
+      <div className="mt-8">
+        <label className="block text-sm font-medium">Quick start with a template</label>
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {TEMPLATES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => applyTemplate(t)}
+              className={`flex flex-col items-start gap-1 rounded-lg border p-3 text-left text-sm transition ${
+                activeTemplate === t.id
+                  ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900"
+                  : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
+              }`}
+            >
+              <span className="text-xl">{t.emoji}</span>
+              <span className="font-medium leading-tight">{t.label}</span>
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs text-zinc-400">
+          Prefills the fields below — edit anything, or fill it in yourself.
+        </p>
+      </div>
 
       <div className="mt-8 space-y-6">
         <div>
