@@ -2,7 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { EvaluationReport, InterviewSetup, Turn } from "@/lib/types";
+import type {
+  AnswerDelivery,
+  EvaluationReport,
+  InterviewSetup,
+  Turn,
+} from "@/lib/types";
+import { aggregate, analyzeAnswer } from "@/lib/delivery";
+import { useSpeechRecognition } from "@/lib/useSpeechRecognition";
 import { Report } from "./report";
 
 type Phase = "loading" | "interviewing" | "evaluating" | "done" | "error";
@@ -18,6 +25,28 @@ export default function InterviewPage() {
   const [error, setError] = useState("");
   const startedRef = useRef(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Voice input + delivery analytics (Phase 2).
+  const sr = useSpeechRecognition();
+  const [deliveries, setDeliveries] = useState<AnswerDelivery[]>([]);
+  const baseRef = useRef(""); // textarea text captured when the mic started
+  const voiceStartRef = useRef<number | null>(null);
+
+  // While listening, stream recognized speech into the answer box.
+  useEffect(() => {
+    if (sr.listening) setInput(baseRef.current + sr.transcript + sr.interim);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sr.transcript, sr.interim, sr.listening]);
+
+  function toggleMic() {
+    if (sr.listening) {
+      sr.stop();
+      return;
+    }
+    baseRef.current = input.trim() ? input.trim() + " " : "";
+    voiceStartRef.current = Date.now();
+    sr.start();
+  }
 
   // Load setup and kick off the first interviewer message.
   useEffect(() => {
@@ -62,7 +91,23 @@ export default function InterviewPage() {
 
   async function submitAnswer() {
     if (!setup || !input.trim() || busy) return;
-    const next = [...turns, { speaker: "candidate" as const, content: input.trim() }];
+    const answer = input.trim();
+
+    // If this answer was (partly) spoken, record delivery metrics for it.
+    if (sr.listening) sr.stop();
+    const dur =
+      sr.durationSec > 0
+        ? sr.durationSec
+        : voiceStartRef.current
+          ? (Date.now() - voiceStartRef.current) / 1000
+          : 0;
+    if (dur > 0) {
+      setDeliveries((d) => [...d, analyzeAnswer(answer, dur)]);
+    }
+    voiceStartRef.current = null;
+    sr.reset();
+
+    const next = [...turns, { speaker: "candidate" as const, content: answer }];
     setTurns(next);
     setInput("");
     await advance(setup, next);
@@ -106,7 +151,13 @@ export default function InterviewPage() {
   }
 
   if (phase === "done" && report) {
-    return <Report report={report} onRestart={() => router.push("/")} />;
+    return (
+      <Report
+        report={report}
+        delivery={deliveries.length ? aggregate(deliveries) : null}
+        onRestart={() => router.push("/")}
+      />
+    );
   }
 
   return (
@@ -148,7 +199,20 @@ export default function InterviewPage() {
       </div>
 
       {phase === "interviewing" && (
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 flex items-end gap-2">
+          {sr.supported && (
+            <button
+              onClick={toggleMic}
+              title={sr.listening ? "Stop recording" : "Answer with your voice"}
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border text-lg transition ${
+                sr.listening
+                  ? "animate-pulse border-red-500 bg-red-500 text-white"
+                  : "border-zinc-300 hover:border-zinc-500 dark:border-zinc-700"
+              }`}
+            >
+              {sr.listening ? "■" : "🎤"}
+            </button>
+          )}
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -159,13 +223,17 @@ export default function InterviewPage() {
               }
             }}
             rows={2}
-            placeholder="Type your answer… (Enter to send, Shift+Enter for newline)"
+            placeholder={
+              sr.listening
+                ? "Listening… speak your answer"
+                : "Type or speak your answer… (Enter to send, Shift+Enter for newline)"
+            }
             className="flex-1 resize-none rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900"
           />
           <button
             onClick={submitAnswer}
             disabled={busy || !input.trim()}
-            className="rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
+            className="h-11 rounded-lg bg-zinc-900 px-5 text-sm font-medium text-white disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900"
           >
             Send
           </button>
