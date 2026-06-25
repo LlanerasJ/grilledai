@@ -47,3 +47,25 @@ export interface EvaluationReport {
     topFixes: string[];
   };
 }
+
+// ---- Delivery analytics (Phase 2 — computed client-side from voice input) ----
+
+// Metrics for a single spoken answer.
+export interface AnswerDelivery {
+  words: number;
+  durationSec: number;
+  wordsPerMinute: number;
+  fillerCount: number;
+  fillerBreakdown: Record<string, number>;
+}
+
+// Aggregate across all spoken answers in an interview.
+export interface DeliveryStats {
+  spokenAnswers: number;
+  totalWords: number;
+  totalDurationSec: number;
+  wordsPerMinute: number;
+  fillerCount: number;
+  fillerPer100Words: number;
+  fillerBreakdown: Record<string, number>;
+}

@@ -1,6 +1,7 @@
 "use client";
 
-import type { DimensionScore, EvaluationReport } from "@/lib/types";
+import type { DeliveryStats, DimensionScore, EvaluationReport } from "@/lib/types";
+import { pacingLabel } from "@/lib/delivery";
 
 const DIMENSIONS: { key: keyof QuestionScores; label: string }[] = [
   { key: "relevance", label: "Relevance" },
@@ -37,17 +38,69 @@ function Dimension({ label, ds }: { label: string; ds: DimensionScore }) {
   );
 }
 
+function DeliveryCard({ delivery }: { delivery: DeliveryStats }) {
+  const pace = pacingLabel(delivery.wordsPerMinute);
+  const topFillers = Object.entries(delivery.fillerBreakdown).sort((a, b) => b[1] - a[1]);
+  const mins = Math.floor(delivery.totalDurationSec / 60);
+  const secs = delivery.totalDurationSec % 60;
+  return (
+    <section className="mt-6 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+      <h2 className="text-sm font-semibold text-zinc-500">Delivery (spoken answers)</h2>
+      <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div>
+          <div className="text-2xl font-bold">{delivery.wordsPerMinute}</div>
+          <div className={`text-xs ${pace.tone === "warn" ? "text-amber-600" : "text-zinc-500"}`}>
+            wpm · {pace.label}
+          </div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">{delivery.fillerCount}</div>
+          <div className="text-xs text-zinc-500">
+            filler words ({delivery.fillerPer100Words}/100)
+          </div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">{delivery.totalWords}</div>
+          <div className="text-xs text-zinc-500">words spoken</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">
+            {mins}:{String(secs).padStart(2, "0")}
+          </div>
+          <div className="text-xs text-zinc-500">talk time</div>
+        </div>
+      </div>
+      {topFillers.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {topFillers.map(([word, n]) => (
+            <span
+              key={word}
+              className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
+            >
+              &ldquo;{word}&rdquo; ×{n}
+            </span>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function Report({
   report,
+  delivery,
   onRestart,
 }: {
   report: EvaluationReport;
+  delivery?: DeliveryStats | null;
   onRestart: () => void;
 }) {
   const { overall, perQuestion } = report;
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Your feedback</h1>
+
+      {delivery && <DeliveryCard delivery={delivery} />}
 
       {/* Overall */}
       <section className="mt-6 rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
