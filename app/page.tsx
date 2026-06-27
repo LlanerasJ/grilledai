@@ -28,10 +28,19 @@ export default function SetupPage() {
     setActiveTemplate(t.id);
   }
 
-  function start() {
+  function saveSetup() {
     const setup: InterviewSetup = { role, type, jd, resume };
     sessionStorage.setItem("interviewSetup", JSON.stringify(setup));
+  }
+
+  function start() {
+    saveSetup();
     router.push("/interview");
+  }
+
+  function startAvatar() {
+    saveSetup();
+    router.push("/avatar");
   }
 
   const ready = role.trim() && jd.trim() && resume.trim();
@@ -118,13 +127,22 @@ export default function SetupPage() {
           />
         </div>
 
-        <button
-          onClick={start}
-          disabled={!ready}
-          className="w-full rounded-lg bg-zinc-900 py-3 font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
-          Start interview
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={start}
+            disabled={!ready}
+            className="w-full rounded-lg bg-zinc-900 py-3 font-medium text-white transition hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            Start text interview
+          </button>
+          <button
+            onClick={startAvatar}
+            disabled={!ready}
+            className="w-full rounded-lg border border-zinc-300 py-3 font-medium transition hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-zinc-700 dark:hover:border-zinc-500"
+          >
+            🎥 Start avatar interview <span className="text-xs text-zinc-400">(beta)</span>
+          </button>
+        </div>
       </div>
     </main>
   );
