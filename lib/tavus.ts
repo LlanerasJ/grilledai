@@ -62,6 +62,16 @@ export async function createConversation(
   return (await res.json()) as TavusConversation;
 }
 
+// End a conversation (stops the live call, frees the concurrency slot / minutes).
+export async function endConversation(conversationId: string): Promise<void> {
+  const apiKey = process.env.TAVUS_API_KEY;
+  if (!apiKey) throw new Error("TAVUS_API_KEY is not set in .env.local");
+  await fetch(`${TAVUS_BASE}/conversations/${conversationId}/end`, {
+    method: "POST",
+    headers: { "x-api-key": apiKey },
+  });
+}
+
 // Build the interviewer context for the built-in LLM (spike). When we later move to
 // our own LLM endpoint, this is replaced by routing Tavus to /api/interview.
 export function buildInterviewerContext(role: string, jd: string, resume: string): string {
