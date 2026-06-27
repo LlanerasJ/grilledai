@@ -24,3 +24,61 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ---- Print / "Download as PDF" styles for the feedback report ---- */
+@media print {
+  /* Hide interactive controls (download button, "new interview", etc.). */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Keep score/badge colors in the PDF. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 1.5rem !important;
+  }
+
+  /* Avoid splitting a question/card across pages. */
+  section {
+    break-inside: avoid;
+  }
+
+  /* Force a clean, always-light palette regardless of OS dark mode. */
+  [class*="dark:bg-zinc-8"],
+  [class*="dark:bg-zinc-9"] {
+    background: #fff !important;
+  }
+  [class*="dark:bg-red-950"] {
+    background: #fef2f2 !important;
+  }
+  [class*="dark:bg-green-950"] {
+    background: #f0fdf4 !important;
+  }
+  [class*="dark:bg-amber-950"] {
+    background: #fffbeb !important;
+  }
+  [class*="dark:text-zinc-3"],
+  [class*="dark:text-zinc-4"] {
+    color: #3f3f46 !important;
+  }
+  [class*="dark:text-green-400"] {
+    color: #16a34a !important;
+  }
+  [class*="dark:text-amber-400"] {
+    color: #d97706 !important;
+  }
+  [class*="dark:text-red-400"] {
+    color: #dc2626 !important;
+  }
+}

@@ -96,9 +96,26 @@ export function Report({
   onRestart: () => void;
 }) {
   const { overall, perQuestion } = report;
+
+  function download() {
+    // Browser print-to-PDF: clean, dependency-free, respects the report styling.
+    const prev = document.title;
+    document.title = "GrilledAI feedback";
+    window.print();
+    document.title = prev;
+  }
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight">Your feedback</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Your feedback</h1>
+        <button
+          onClick={download}
+          className="no-print shrink-0 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:border-zinc-500 dark:border-zinc-700"
+        >
+          ⤓ Download PDF
+        </button>
+      </div>
 
       {delivery && <DeliveryCard delivery={delivery} />}
 
@@ -182,7 +199,7 @@ export function Report({
 
       <button
         onClick={onRestart}
-        className="mt-10 rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+        className="no-print mt-10 rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
       >
         New interview
       </button>
