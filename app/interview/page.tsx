@@ -125,7 +125,12 @@ export default function InterviewPage() {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setup: s, transcript }),
+        body: JSON.stringify({
+          setup: s,
+          transcript,
+          mode: "text",
+          delivery: deliveries.length ? aggregate(deliveries) : null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed");
