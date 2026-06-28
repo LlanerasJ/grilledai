@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { InterviewSetup, InterviewType } from "@/lib/types";
 import { TEMPLATES, type RoleTemplate } from "@/lib/templates";
+import { AuthBar } from "./auth-bar";
 
 const TYPES: { value: InterviewType; label: string }[] = [
   { value: "behavioral", label: "Behavioral" },
@@ -47,7 +48,8 @@ export default function SetupPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-3xl font-bold tracking-tight">GrilledAI</h1>
+      <AuthBar />
+      <h1 className="mt-4 text-3xl font-bold tracking-tight">GrilledAI</h1>
       <p className="mt-2 text-zinc-500">
         Practice with an AI interviewer, then get honest, specific feedback.
       </p>
