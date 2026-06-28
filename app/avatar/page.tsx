@@ -73,7 +73,7 @@ export default function AvatarPage() {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ setup, transcript }),
+        body: JSON.stringify({ setup, transcript, mode: "avatar", delivery: null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Evaluation failed");
