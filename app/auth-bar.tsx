@@ -16,6 +16,9 @@ export function AuthBar() {
 
   return (
     <div className="flex items-center justify-end gap-3 text-sm text-zinc-500">
+      <a href="/history" className="hover:text-zinc-900 hover:underline dark:hover:text-zinc-100">
+        History
+      </a>
       <span className="truncate">{email}</span>
       <form action="/auth/signout" method="post">
         <button className="rounded-md border border-zinc-300 px-2.5 py-1 hover:border-zinc-500 dark:border-zinc-700">
