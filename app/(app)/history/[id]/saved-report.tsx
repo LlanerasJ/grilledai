@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { DeliveryStats, EvaluationReport } from "@/lib/types";
-import { Report } from "../../interview/report";
+import { Report } from "@/app/interview/report";
 
 // Renders a previously saved report, with "back to history" instead of restart.
 export function SavedReport({
