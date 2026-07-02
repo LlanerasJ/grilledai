@@ -2,6 +2,7 @@
 
 import type { DeliveryStats, DimensionScore, EvaluationReport } from "@/lib/types";
 import { pacingLabel } from "@/lib/delivery";
+import { Button } from "@/app/ui/button";
 
 const DIMENSIONS: { key: keyof QuestionScores; label: string }[] = [
   { key: "relevance", label: "Relevance" },
@@ -109,12 +110,9 @@ export function Report({
     <main className="mx-auto max-w-3xl px-6 py-12">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight">Your feedback</h1>
-        <button
-          onClick={download}
-          className="no-print shrink-0 rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:border-zinc-500 dark:border-zinc-700"
-        >
+        <Button variant="secondary" size="sm" onClick={download} className="no-print">
           ⤓ Download PDF
-        </button>
+        </Button>
       </div>
 
       {delivery && <DeliveryCard delivery={delivery} />}
@@ -197,12 +195,9 @@ export function Report({
         ))}
       </div>
 
-      <button
-        onClick={onRestart}
-        className="no-print mt-10 rounded-lg bg-zinc-900 px-6 py-3 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-      >
+      <Button size="lg" onClick={onRestart} className="no-print mt-10">
         New interview
-      </button>
+      </Button>
     </main>
   );
 }
